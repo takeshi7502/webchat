@@ -8,15 +8,20 @@
 </head>
 <body>
     <div class="chat-container">
+        <!-- Khung hiển thị tin nhắn -->
         <div id="chat-box"></div>
 
-        <!-- Hiển thị file preview -->
-        <div id="file-preview"></div>
+        <!-- Hiển thị ảnh preview -->
+        <div id="file-preview-container">
+            <div id="file-preview"></div>
+            <button id="cancel-image" onclick="removeImage()">❌</button>
+        </div>
 
+        <!-- Khung nhập tin nhắn -->
         <div class="input-container">
-            <!-- Nút chọn file -->
-            <input type="file" id="file-input" style="display: none;">
-            <button id="file-button" onclick="document.getElementById('file-input').click()">➕</button>
+            <!-- Nút chọn ảnh -->
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+            <button id="file-button" onclick="document.getElementById('file-input').click()">📷</button>
 
             <!-- Ô nhập tin nhắn -->
             <input type="text" id="message-input" placeholder="Nhập tin nhắn..." />
