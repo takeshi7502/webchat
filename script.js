@@ -1,3 +1,4 @@
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
 
@@ -9,7 +10,7 @@ const firebaseConfig = {
     projectId: "takehi-webchat",
     storageBucket: "takehi-webchat.appspot.com",
     messagingSenderId: "683823627022",
-    appId: "1:683823627022:web:0b542b89002bb723ae755f"
+    appId: "1:683823627022:web:0b542b89002bb723ae755f",
 };
 
 // Khởi tạo Firebase
@@ -18,7 +19,7 @@ const db = getDatabase(app);
 
 // Cấu hình Upload.io
 const UPLOAD_IO_API_KEY = "public_223k24L7LbmWwYTvovkRQEzW2ELz";
-const UPLOAD_IO_ACCOUNT_ID = "223k24L";  // Thêm Account ID của bạn
+const UPLOAD_IO_ACCOUNT_ID = "223k24L";
 
 // Hàm upload ảnh lên Upload.io
 async function uploadImage(file) {
@@ -104,7 +105,7 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     chatBox.scrollTop = chatBox.scrollHeight;
 });
 
-// Cho phép bấm Enter để gửi tin nhắn nhanh
+// Cho phép bấm Enter để gửi tin nhắn
 document.getElementById("message-input").addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
         event.preventDefault();
