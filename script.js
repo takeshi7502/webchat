@@ -4,7 +4,7 @@ import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/fi
 
 // Cấu hình Firebase (Lấy từ config.js thay vì process.env)
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: "takehi-webchat.firebaseapp.com",
     databaseURL: "https://takehi-webchat-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "takehi-webchat",
