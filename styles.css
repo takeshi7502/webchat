@@ -196,6 +196,66 @@ body {
     background: #0056cc;
 }
 
+/* Nút chuyển Dark Mode */
+#dark-mode-toggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #f0f2f5;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#dark-mode-toggle:hover {
+    background: #e0e0e0;
+}
+
+/* Dark Mode */
+.dark-mode {
+    background-color: #181818;
+    color: white;
+}
+
+.dark-mode .chat-container {
+    background: #242424;
+    box-shadow: none;
+}
+
+.dark-mode #chat-box {
+    scrollbar-color: #555 transparent;
+}
+
+.dark-mode .message {
+    background: #333;
+    color: white;
+}
+
+.dark-mode .my-message {
+    background: #0078ff;
+}
+
+.dark-mode .other-message {
+    background: #444;
+}
+
+.dark-mode #message-input {
+    background: #333;
+    color: white;
+}
+
+.dark-mode #file-preview-container {
+    background: #333;
+}
+
+.dark-mode #dark-mode-toggle {
+    background: #444;
+    color: white;
+}
+
 /* Responsive cho mobile */
 @media screen and (max-width: 480px) {
     .chat-container {
