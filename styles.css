@@ -109,6 +109,25 @@ body {
     align-items: center;
 }
 
+/* Nút chọn file */
+#file-button {
+    background: #ccc;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-right: 8px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#file-button:hover {
+    background: #bbb;
+}
+
 /* Ô nhập tin nhắn */
 #message-input {
     flex: 1;
@@ -120,6 +139,11 @@ body {
     background: #f0f2f5;
     max-height: 100px;
     overflow-y: auto;
+}
+
+/* Ẩn input file */
+#file-input {
+    display: none;
 }
 
 /* Nút gửi */
