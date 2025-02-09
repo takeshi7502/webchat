@@ -18,12 +18,26 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-// Lấy username từ localStorage hoặc yêu cầu nhập
+// Lấy username từ localStorage
 let username = localStorage.getItem("chat_username");
 if (!username) {
     username = prompt("Nhập tên của bạn:");
     localStorage.setItem("chat_username", username);
 }
+
+// Hiển thị preview file khi chọn
+document.getElementById("file-input").addEventListener("change", function () {
+    const file = this.files[0];
+    const preview = document.getElementById("file-preview");
+
+    if (file) {
+        preview.textContent = `📎 ${file.name}`;
+        preview.style.display = "block";
+    } else {
+        preview.textContent = "";
+        preview.style.display = "none";
+    }
+});
 
 // Hàm gửi tin nhắn hoặc file
 async function sendMessage() {
@@ -32,30 +46,43 @@ async function sendMessage() {
     const message = input.value.trim();
     const file = fileInput.files[0];
 
-    if (message || file) {
-        let fileUrl = "";
-
-        // Nếu có file, tải lên Firebase Storage trước
-        if (file) {
-            const filePath = `uploads/${Date.now()}_${file.name}`;
-            const fileRef = storageRef(storage, filePath);
+    // Nếu có file thì tải lên Firebase Storage
+    if (file) {
+        const filePath = `uploads/${Date.now()}_${file.name}`;
+        const fileRef = storageRef(storage, filePath);
+        
+        try {
             await uploadBytes(fileRef, file);
-            fileUrl = await getDownloadURL(fileRef);
-        }
+            const fileUrl = await getDownloadURL(fileRef);
 
-        // Gửi tin nhắn lên Firebase Database
+            // Gửi tin nhắn chứa file
+            push(ref(db, "messages"), {
+                user: username,
+                text: message || "[Đã gửi một file]",
+                fileUrl: fileUrl,
+                fileName: file.name,
+                timestamp: Date.now()
+            });
+
+            fileInput.value = ""; // Reset file input
+            document.getElementById("file-preview").style.display = "none"; // Ẩn preview file
+        } catch (error) {
+            console.error("Lỗi tải file:", error);
+        }
+    } 
+
+    // Gửi tin nhắn nếu có nội dung
+    if (message) {
         push(ref(db, "messages"), {
             user: username,
             text: message,
-            fileUrl: fileUrl,
-            fileName: file ? file.name : "",
+            fileUrl: "",
+            fileName: "",
             timestamp: Date.now()
         });
-
-        // Xóa input sau khi gửi
-        input.value = "";
-        fileInput.value = "";
     }
+
+    input.value = "";
 }
 
 // Lắng nghe tin nhắn mới từ Firebase
@@ -63,7 +90,7 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     const msg = snapshot.val();
     const chatBox = document.getElementById("chat-box");
 
-    // Tạo div hiển thị tin nhắn
+    // Tạo div tin nhắn
     const div = document.createElement("div");
     div.classList.add("message");
     if (msg.user === username) {
@@ -72,14 +99,14 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
         div.classList.add("other-message");
     }
 
-    // Thời gian gửi
+    // Hiển thị thời gian
     const time = new Date(msg.timestamp);
     const formattedTime = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
 
-    // Nội dung tin nhắn
+    // Hiển thị nội dung tin nhắn
     div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text} <br> <span class="timestamp">${formattedTime}</span>`;
 
-    // Nếu có file, hiển thị file
+    // Nếu có file, thêm link tải xuống
     if (msg.fileUrl) {
         const fileLink = document.createElement("a");
         fileLink.href = msg.fileUrl;
@@ -93,7 +120,7 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     chatBox.scrollTop = chatBox.scrollHeight;
 });
 
-// Bấm Enter để gửi tin nhắn
+// Bấm Enter để gửi tin nhắn nhanh hơn
 document.getElementById("message-input").addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -101,13 +128,13 @@ document.getElementById("message-input").addEventListener("keypress", function (
     }
 });
 
-// Gán sự kiện click cho nút gửi
-document.getElementById("send-button").addEventListener("click", sendMessage);
-
-// Gán sự kiện click cho nút "+" để chọn file
+// Nút "+" chọn file
 document.getElementById("file-button").addEventListener("click", function () {
     document.getElementById("file-input").click();
 });
+
+// Gán sự kiện click cho nút gửi
+document.getElementById("send-button").addEventListener("click", sendMessage);
 
 // Đưa sendMessage vào global
 window.sendMessage = sendMessage;
