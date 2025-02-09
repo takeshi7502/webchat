@@ -10,14 +10,19 @@
     <div class="chat-container">
         <div id="chat-box"></div>
 
-        <!-- Hiển thị preview file ở trên ô nhập chat -->
-        <div id="file-preview" class="file-preview"></div>
+        <!-- Hiển thị file preview -->
+        <div id="file-preview"></div>
 
         <div class="input-container">
-            <button id="file-button">➕</button>
+            <!-- Nút chọn file -->
             <input type="file" id="file-input" style="display: none;">
+            <button id="file-button" onclick="document.getElementById('file-input').click()">➕</button>
+
+            <!-- Ô nhập tin nhắn -->
             <input type="text" id="message-input" placeholder="Nhập tin nhắn..." />
-            <button id="send-button">Gửi</button>
+            
+            <!-- Nút gửi -->
+            <button id="send-button" onclick="sendMessage()">Gửi</button>
         </div>
     </div>
 
