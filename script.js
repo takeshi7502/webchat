@@ -67,3 +67,7 @@ document.getElementById("message-input").addEventListener("keypress", function (
 
 // Đưa sendMessage vào global
 window.sendMessage = sendMessage;
+
+window.onerror = function (msg, url, line, col, error) {
+    alert("Lỗi: " + msg + "\nTại: " + url + "\nDòng: " + line);
+};
