@@ -8,11 +8,15 @@
 </head>
 <body>
     <div class="chat-container">
+        <!-- Khung hiển thị tin nhắn -->
         <div id="chat-box"></div>
+
+        <!-- Khung nhập tin nhắn và gửi file -->
         <div class="input-container">
+            <button id="file-button">+</button>
+            <input type="file" id="file-input" />
             <input type="text" id="message-input" placeholder="Nhập tin nhắn..." />
-            <button id="send-button" onclick="sendMessage()">Gửi</button>
-            
+            <button id="send-button">Gửi</button>
         </div>
     </div>
 
