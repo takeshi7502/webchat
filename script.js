@@ -22,7 +22,11 @@ function sendMessage() {
     const input = document.getElementById("message-input");
     const message = input.value.trim();
     if (message) {
-        push(ref(db, "messages"), { text: message, timestamp: Date.now() });
+        push(ref(db, "messages"), { 
+            user: username,  // Lưu tên người gửi
+            text: message, 
+            timestamp: Date.now() 
+        });
         input.value = "";
     }
 }
@@ -31,8 +35,16 @@ function sendMessage() {
 onChildAdded(ref(db, "messages"), (snapshot) => {
     const msg = snapshot.val();
     const chatBox = document.getElementById("chat-box");
+
+    // Tạo div hiển thị tin nhắn
     const div = document.createElement("div");
-    div.textContent = msg.text;
+    div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+    
+    // Nếu tin nhắn của chính mình, thêm class "my-message"
+    if (msg.user === username) {
+        div.classList.add("my-message");
+    }
+
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
 });
@@ -47,3 +59,10 @@ document.getElementById("message-input").addEventListener("keypress", function (
 
 // Đưa sendMessage vào global
 window.sendMessage = sendMessage;
+
+// Yêu cầu người dùng nhập tên khi vào trang
+let username = localStorage.getItem("chat_username");
+if (!username) {
+    username = prompt("Nhập tên của bạn:");
+    localStorage.setItem("chat_username", username); // Lưu vào localStorage
+}
