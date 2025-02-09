@@ -1,4 +1,3 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
 
@@ -21,8 +20,8 @@ const db = getDatabase(app);
 const UPLOAD_IO_API_KEY = "public_223k24L7LbmWwYTvovkRQEzW2ELz";
 const UPLOAD_IO_ACCOUNT_ID = "223k24L";
 
-// Hàm upload ảnh lên Upload.io
-async function uploadImage(file) {
+// Hàm upload file lên Upload.io
+async function uploadFile(file) {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -33,50 +32,51 @@ async function uploadImage(file) {
     });
 
     const result = await response.json();
-    return result.fileUrl; // Trả về URL ảnh đã upload
+    return result.fileUrl; // Trả về URL file đã upload
 }
 
-// Xử lý khi chọn ảnh
-document.getElementById("image-input").addEventListener("change", async function (event) {
+// Xử lý khi chọn file
+document.getElementById("file-input").addEventListener("change", async function (event) {
     const file = event.target.files[0];
-    if (!file || !file.type.startsWith("image/")) return alert("Chỉ hỗ trợ gửi ảnh!");
+    if (!file) return;
 
-    // Hiển thị preview ảnh trước khi gửi
-    const preview = document.getElementById("image-preview");
-    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Preview" class="preview-img">
-                         <button onclick="removeImage()">❌</button>`;
-
-    // Upload ảnh lên Upload.io
-    const imageUrl = await uploadImage(file);
-    preview.dataset.imageUrl = imageUrl; // Lưu URL ảnh sau khi upload
+    // Hiển thị preview file trước khi gửi
+    document.getElementById("file-preview").innerHTML = `
+        <div class="preview-item">
+            <a href="#" id="file-link">📁 ${file.name}</a>
+            <button onclick="removeFile()">❌</button>
+        </div>`;
+    
+    // Upload file lên Upload.io
+    const fileUrl = await uploadFile(file);
+    document.getElementById("file-link").href = fileUrl;
 });
 
-// Hàm gửi tin nhắn (có thể kèm ảnh)
+// Hàm gửi tin nhắn (có thể kèm file)
 async function sendMessage() {
     const input = document.getElementById("message-input");
     const message = input.value.trim();
-    const imageUrl = document.getElementById("image-preview").dataset.imageUrl || null;
+    const fileUrl = document.querySelector("#file-preview a")?.href || null;
 
-    if (!message && !imageUrl) return;
+    if (!message && !fileUrl) return;
 
     // Lưu vào Firebase
     push(ref(db, "messages"), { 
         user: username,  
         text: message, 
-        image: imageUrl, 
+        file: fileUrl, 
         timestamp: Date.now() 
     });
 
-    // Xóa input và preview ảnh sau khi gửi
+    // Xóa input và preview file sau khi gửi
     input.value = "";
-    removeImage();
+    removeFile();
 }
 
-// Hàm xóa ảnh khỏi preview
-function removeImage() {
-    document.getElementById("image-preview").innerHTML = "";
-    document.getElementById("image-preview").dataset.imageUrl = "";
-    document.getElementById("image-input").value = "";
+// Hàm xóa file khỏi preview
+function removeFile() {
+    document.getElementById("file-preview").innerHTML = "";
+    document.getElementById("file-input").value = "";
 }
 
 // Lắng nghe tin nhắn từ Firebase
@@ -91,9 +91,9 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     // Nội dung tin nhắn
     div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
 
-    // Nếu có ảnh, hiển thị ảnh
-    if (msg.image) {
-        div.innerHTML += `<br><img src="${msg.image}" class="chat-image" alt="Image">`;
+    // Nếu có file, thêm link file vào tin nhắn
+    if (msg.file) {
+        div.innerHTML += `<br><a href="${msg.file}" target="_blank">📎 File đính kèm</a>`;
     }
 
     // Hiển thị thời gian
@@ -122,4 +122,4 @@ if (!username) {
 
 // Đưa sendMessage vào global để dùng onclick
 window.sendMessage = sendMessage;
-window.removeImage = removeImage;
+window.removeFile = removeFile;
