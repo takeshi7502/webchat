@@ -1,4 +1,3 @@
-// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
 
@@ -28,7 +27,7 @@ function sendMessage() {
     }
 }
 
-// Hiển thị tin nhắn từ Firebase
+// Nhận tin nhắn từ Firebase
 onChildAdded(ref(db, "messages"), (snapshot) => {
     const msg = snapshot.val();
     const chatBox = document.getElementById("chat-box");
@@ -37,3 +36,6 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
 });
+
+// Đưa sendMessage vào global
+window.sendMessage = sendMessage;
