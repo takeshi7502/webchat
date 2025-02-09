@@ -37,20 +37,43 @@ function sendMessage() {
 }
 
 // Gửi file (ảnh, tài liệu)
-function sendFile() {
+document.getElementById("file-button").addEventListener("click", function () {
+    document.getElementById("file-input").click();
+});
+
+document.getElementById("send-button").addEventListener("click", sendMessage);
+
+function sendMessage() {
+    const input = document.getElementById("message-input");
     const fileInput = document.getElementById("file-input");
+    const message = input.value.trim();
     const file = fileInput.files[0];
 
-    if (file) {
-        const fileRef = storageRef(storage, `uploads/${Date.now()}_${file.name}`);
-        uploadBytes(fileRef, file).then((snapshot) => {
-            getDownloadURL(snapshot.ref).then((url) => {
-                const timestamp = new Date().toISOString();
-                push(ref(db, "messages"), { user: username, fileUrl: url, fileName: file.name, timestamp, type: "file" });
-            });
-        });
+    if (message || file) {
+        let msgContent = message;
 
-        fileInput.value = ""; // Reset input file
+        // Nếu có file, hiển thị file name hoặc ảnh preview
+        if (file) {
+            const fileURL = URL.createObjectURL(file);
+            if (file.type.startsWith("image/")) {
+                msgContent += `<br><img src="${fileURL}" width="100" />`;
+            } else {
+                msgContent += `<br><a href="${fileURL}" target="_blank">${file.name}</a>`;
+            }
+        }
+
+        const chatBox = document.getElementById("chat-box");
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("message", "my-message");
+        msgDiv.innerHTML = `<span class="message-content">${msgContent}</span>
+                            <span class="timestamp">${new Date().toLocaleTimeString()}</span>`;
+
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Xóa input sau khi gửi
+        input.value = "";
+        fileInput.value = "";
     }
 }
 
