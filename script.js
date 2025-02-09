@@ -25,7 +25,7 @@ if (!username) {
     localStorage.setItem("chat_username", username);
 }
 
-// Hiển thị preview file khi chọn
+// Hiển thị preview file trên ô nhập tin nhắn
 document.getElementById("file-input").addEventListener("change", function () {
     const file = this.files[0];
     const preview = document.getElementById("file-preview");
@@ -65,7 +65,8 @@ async function sendMessage() {
             });
 
             fileInput.value = ""; // Reset file input
-            document.getElementById("file-preview").style.display = "none"; // Ẩn preview file
+            document.getElementById("file-preview").textContent = ""; // Ẩn preview file
+            document.getElementById("file-preview").style.display = "none"; 
         } catch (error) {
             console.error("Lỗi tải file:", error);
         }
