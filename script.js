@@ -10,32 +10,34 @@ const firebaseConfig = {
     storageBucket: "takehi-webchat.appspot.com",
     messagingSenderId: "683823627022",
     appId: "1:683823627022:web:0b542b89002bb723ae755f",
-    measurementId: "G-CBQ51RCJQD"
 };
 
-// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Lấy tên người dùng từ localStorage hoặc yêu cầu nhập
+// Lấy username từ localStorage hoặc yêu cầu nhập mới
 let username = localStorage.getItem("chat_username");
 if (!username) {
     username = prompt("Nhập tên của bạn:");
     localStorage.setItem("chat_username", username);
 }
 
-// Gửi tin nhắn
+// Hàm gửi tin nhắn
 function sendMessage() {
     const input = document.getElementById("message-input");
     const message = input.value.trim();
+    
     if (message) {
-        push(ref(db, "messages"), { 
-            user: username,  
-            text: message, 
-            timestamp: Date.now() 
-        });
+        const timestamp = new Date().toISOString(); // Lưu thời gian gửi
+        push(ref(db, "messages"), { user: username, text: message, timestamp });
         input.value = "";
     }
+}
+
+// Hàm định dạng thời gian (HH:mm)
+function formatTime(isoString) {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 }
 
 // Nhận tin nhắn từ Firebase
@@ -46,26 +48,26 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     // Tạo div hiển thị tin nhắn
     const div = document.createElement("div");
     div.classList.add("message");
-    div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
-    
-    // Nếu tin nhắn của chính mình, thêm class "my-message", ngược lại là "other-message"
     if (msg.user === username) {
         div.classList.add("my-message");
     } else {
         div.classList.add("other-message");
     }
 
+    // Hiển thị tin nhắn kèm thời gian gửi
+    div.innerHTML = `<strong>${msg.user}</strong>: ${msg.text} <span class="timestamp">${formatTime(msg.timestamp)}</span>`;
+
     chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    chatBox.scrollTop = chatBox.scrollHeight; // Cuộn xuống tin nhắn mới nhất
 });
 
 // Bấm Enter để gửi tin nhắn
 document.getElementById("message-input").addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
-        event.preventDefault(); // Ngăn xuống dòng
-        sendMessage(); // Gửi tin nhắn
+        event.preventDefault();
+        sendMessage();
     }
 });
 
-// Đưa sendMessage vào global
+// Đưa hàm sendMessage vào global để dùng trong HTML
 window.sendMessage = sendMessage;
