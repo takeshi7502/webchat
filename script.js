@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
 
-// Cấu hình Firebase
+// Cấu hình Firebase (Chỉ dùng để lưu tin nhắn)
 const firebaseConfig = {
     apiKey: "AIzaSyD_8HXx0No6MBrz_aTQ-z9C43wVkL9GdxY",
     authDomain: "takehi-webchat.firebaseapp.com",
@@ -61,7 +61,7 @@ async function sendMessage() {
 
     if (!message && !imageUrl) return;
 
-    // Lưu vào Firebase
+    // Lưu tin nhắn (kèm link ảnh nếu có) vào Firebase
     push(ref(db, "messages"), { 
         user: username,  
         text: message, 
