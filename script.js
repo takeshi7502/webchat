@@ -1,21 +1,29 @@
+// Import Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
 
-// Cấu hình Firebase
+// Cấu hình Firebase (Lấy từ config.js thay vì process.env)
 const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    apiKey: firebaseConfigData.apiKey,
+    authDomain: firebaseConfigData.authDomain,
+    databaseURL: firebaseConfigData.databaseURL,
+    projectId: firebaseConfigData.projectId,
+    storageBucket: firebaseConfigData.storageBucket,
+    messagingSenderId: firebaseConfigData.messagingSenderId,
+    appId: firebaseConfigData.appId,
+    measurementId: firebaseConfigData.measurementId
 };
 
 // Khởi tạo Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Yêu cầu người dùng nhập tên khi vào trang
+let username = localStorage.getItem("chat_username");
+if (!username) {
+    username = prompt("Nhập tên của bạn:");
+    localStorage.setItem("chat_username", username); // Lưu vào localStorage
+}
 
 // Gửi tin nhắn
 function sendMessage() {
@@ -59,10 +67,3 @@ document.getElementById("message-input").addEventListener("keypress", function (
 
 // Đưa sendMessage vào global
 window.sendMessage = sendMessage;
-
-// Yêu cầu người dùng nhập tên khi vào trang
-let username = localStorage.getItem("chat_username");
-if (!username) {
-    username = prompt("Nhập tên của bạn:");
-    localStorage.setItem("chat_username", username); // Lưu vào localStorage
-}
