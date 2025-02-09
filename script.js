@@ -9,7 +9,7 @@ const firebaseConfig = {
     projectId: "takehi-webchat",
     storageBucket: "takehi-webchat.appspot.com",
     messagingSenderId: "683823627022",
-    appId: "1:683823627022:web:0b542b89002bb723ae755f",
+    appId: "1:683823627022:web:0b542b89002bb723ae755f"
 };
 
 // Khởi tạo Firebase
@@ -20,8 +20,8 @@ const db = getDatabase(app);
 const UPLOAD_IO_API_KEY = "public_223k24L7LbmWwYTvovkRQEzW2ELz";
 const UPLOAD_IO_ACCOUNT_ID = "223k24L";
 
-// Hàm upload file lên Upload.io
-async function uploadFile(file) {
+// Hàm upload ảnh lên Upload.io
+async function uploadImage(file) {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -32,50 +32,52 @@ async function uploadFile(file) {
     });
 
     const result = await response.json();
-    return result.fileUrl; // Trả về URL file đã upload
+    return result.fileUrl; // Trả về URL ảnh đã upload
 }
 
-// Xử lý khi chọn file
+// Xử lý khi chọn ảnh
 document.getElementById("file-input").addEventListener("change", async function (event) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file || !file.type.startsWith("image/")) {
+        alert("Chỉ hỗ trợ gửi ảnh!");
+        return;
+    }
 
-    // Hiển thị preview file trước khi gửi
-    document.getElementById("file-preview").innerHTML = `
-        <div class="preview-item">
-            <a href="#" id="file-link">📁 ${file.name}</a>
-            <button onclick="removeFile()">❌</button>
-        </div>`;
+    // Hiển thị preview ảnh trước khi gửi
+    const preview = document.getElementById("file-preview");
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" class="preview-img">
+                         <button onclick="removeImage()">❌</button>`;
     
-    // Upload file lên Upload.io
-    const fileUrl = await uploadFile(file);
-    document.getElementById("file-link").href = fileUrl;
+    // Upload ảnh lên Upload.io
+    const imageUrl = await uploadImage(file);
+    preview.dataset.imageUrl = imageUrl;
 });
 
-// Hàm gửi tin nhắn (có thể kèm file)
+// Hàm gửi tin nhắn (có thể kèm ảnh)
 async function sendMessage() {
     const input = document.getElementById("message-input");
     const message = input.value.trim();
-    const fileUrl = document.querySelector("#file-preview a")?.href || null;
+    const imageUrl = document.getElementById("file-preview").dataset.imageUrl || null;
 
-    if (!message && !fileUrl) return;
+    if (!message && !imageUrl) return;
 
     // Lưu vào Firebase
     push(ref(db, "messages"), { 
         user: username,  
         text: message, 
-        file: fileUrl, 
+        image: imageUrl, 
         timestamp: Date.now() 
     });
 
-    // Xóa input và preview file sau khi gửi
+    // Xóa input và preview ảnh sau khi gửi
     input.value = "";
-    removeFile();
+    removeImage();
 }
 
-// Hàm xóa file khỏi preview
-function removeFile() {
+// Hàm xóa ảnh khỏi preview
+function removeImage() {
     document.getElementById("file-preview").innerHTML = "";
+    document.getElementById("file-preview").dataset.imageUrl = "";
     document.getElementById("file-input").value = "";
 }
 
@@ -91,15 +93,14 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     // Nội dung tin nhắn
     div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
 
-    // Nếu có file, thêm link file vào tin nhắn
-    if (msg.file) {
-        div.innerHTML += `<br><a href="${msg.file}" target="_blank">📎 File đính kèm</a>`;
+    // Nếu có ảnh, hiển thị ảnh
+    if (msg.image) {
+        div.innerHTML += `<br><img src="${msg.image}" class="chat-image">`;
     }
 
     // Hiển thị thời gian
     const time = new Date(msg.timestamp);
-    const formattedTime = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
-    div.innerHTML += `<div class="timestamp">${formattedTime}</div>`;
+    div.innerHTML += `<div class="timestamp">${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}</div>`;
 
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -122,4 +123,4 @@ if (!username) {
 
 // Đưa sendMessage vào global để dùng onclick
 window.sendMessage = sendMessage;
-window.removeFile = removeFile;
+window.removeImage = removeImage;
