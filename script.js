@@ -37,5 +37,13 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     chatBox.scrollTop = chatBox.scrollHeight;
 });
 
+// Bấm Enter để gửi tin nhắn
+document.getElementById("message-input").addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Ngăn xuống dòng trong ô input
+        sendMessage(); // Gọi hàm gửi tin nhắn
+    }
+});
+
 // Đưa sendMessage vào global
 window.sendMessage = sendMessage;
