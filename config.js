@@ -1,5 +1,5 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyD_...", // Thay giá trị từ Firebase
+    apiKey: "AIzaSyD_8HXx0No6MBrz_aTQ-z9C43wVkL9GdxY", // Thay giá trị từ Firebase
     authDomain: "takehi-webchat.firebaseapp.com",
     databaseURL: "https://takehi-webchat-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "takehi-webchat",
