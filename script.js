@@ -34,10 +34,14 @@ function sendMessage() {
     }
 }
 
-// Hàm định dạng thời gian (HH:mm)
+// Hàm định dạng thời gian (HH:mm:ss)
 function formatTime(isoString) {
     const date = new Date(isoString);
-    return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+    return date.toLocaleTimeString("vi-VN", { 
+        hour: "2-digit", 
+        minute: "2-digit", 
+        second: "2-digit" 
+    });
 }
 
 // Nhận tin nhắn từ Firebase
@@ -45,19 +49,24 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     const msg = snapshot.val();
     const chatBox = document.getElementById("chat-box");
 
-    // Tạo div hiển thị tin nhắn
-    const div = document.createElement("div");
-    div.classList.add("message");
+    // Tạo div chứa tin nhắn
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message");
     if (msg.user === username) {
-        div.classList.add("my-message");
+        messageDiv.classList.add("my-message");
     } else {
-        div.classList.add("other-message");
+        messageDiv.classList.add("other-message");
     }
 
-    // Hiển thị tin nhắn kèm thời gian gửi
-    div.innerHTML = `<strong>${msg.user}</strong>: ${msg.text} <span class="timestamp">${formatTime(msg.timestamp)}</span>`;
+    // Nội dung tin nhắn + thời gian gửi
+    messageDiv.innerHTML = `
+        <div class="message-content">
+            <strong>${msg.user}</strong>: ${msg.text}
+        </div>
+        <div class="timestamp">${formatTime(msg.timestamp)}</div>
+    `;
 
-    chatBox.appendChild(div);
+    chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight; // Cuộn xuống tin nhắn mới nhất
 });
 
