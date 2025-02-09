@@ -9,7 +9,7 @@ const firebaseConfig = {
     projectId: "takehi-webchat",
     storageBucket: "takehi-webchat.appspot.com",
     messagingSenderId: "683823627022",
-    appId: "1:683823627022:web:0b542b89002bb723ae755f",
+    appId: "1:683823627022:web:0b542b89002bb723ae755f"
 };
 
 // Khởi tạo Firebase
@@ -18,10 +18,10 @@ const db = getDatabase(app);
 
 // Cấu hình Upload.io
 const UPLOAD_IO_API_KEY = "public_223k24L7LbmWwYTvovkRQEzW2ELz";
-const UPLOAD_IO_ACCOUNT_ID = "223k24L";
+const UPLOAD_IO_ACCOUNT_ID = "223k24L";  // Thêm Account ID của bạn
 
-// Hàm upload file lên Upload.io
-async function uploadFile(file) {
+// Hàm upload ảnh lên Upload.io
+async function uploadImage(file) {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -32,51 +32,50 @@ async function uploadFile(file) {
     });
 
     const result = await response.json();
-    return result.fileUrl; // Trả về URL file đã upload
+    return result.fileUrl; // Trả về URL ảnh đã upload
 }
 
-// Xử lý khi chọn file
-document.getElementById("file-input").addEventListener("change", async function (event) {
+// Xử lý khi chọn ảnh
+document.getElementById("image-input").addEventListener("change", async function (event) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file || !file.type.startsWith("image/")) return alert("Chỉ hỗ trợ gửi ảnh!");
 
-    // Hiển thị preview file trước khi gửi
-    document.getElementById("file-preview").innerHTML = `
-        <div class="preview-item">
-            <a href="#" id="file-link">📁 ${file.name}</a>
-            <button onclick="removeFile()">❌</button>
-        </div>`;
-    
-    // Upload file lên Upload.io
-    const fileUrl = await uploadFile(file);
-    document.getElementById("file-link").href = fileUrl;
+    // Hiển thị preview ảnh trước khi gửi
+    const preview = document.getElementById("image-preview");
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Preview" class="preview-img">
+                         <button onclick="removeImage()">❌</button>`;
+
+    // Upload ảnh lên Upload.io
+    const imageUrl = await uploadImage(file);
+    preview.dataset.imageUrl = imageUrl; // Lưu URL ảnh sau khi upload
 });
 
-// Hàm gửi tin nhắn (có thể kèm file)
+// Hàm gửi tin nhắn (có thể kèm ảnh)
 async function sendMessage() {
     const input = document.getElementById("message-input");
     const message = input.value.trim();
-    const fileUrl = document.querySelector("#file-preview a")?.href || null;
+    const imageUrl = document.getElementById("image-preview").dataset.imageUrl || null;
 
-    if (!message && !fileUrl) return;
+    if (!message && !imageUrl) return;
 
     // Lưu vào Firebase
     push(ref(db, "messages"), { 
         user: username,  
         text: message, 
-        file: fileUrl, 
+        image: imageUrl, 
         timestamp: Date.now() 
     });
 
-    // Xóa input và preview file sau khi gửi
+    // Xóa input và preview ảnh sau khi gửi
     input.value = "";
-    removeFile();
+    removeImage();
 }
 
-// Hàm xóa file khỏi preview
-function removeFile() {
-    document.getElementById("file-preview").innerHTML = "";
-    document.getElementById("file-input").value = "";
+// Hàm xóa ảnh khỏi preview
+function removeImage() {
+    document.getElementById("image-preview").innerHTML = "";
+    document.getElementById("image-preview").dataset.imageUrl = "";
+    document.getElementById("image-input").value = "";
 }
 
 // Lắng nghe tin nhắn từ Firebase
@@ -91,9 +90,9 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     // Nội dung tin nhắn
     div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
 
-    // Nếu có file, thêm link file vào tin nhắn
-    if (msg.file) {
-        div.innerHTML += `<br><a href="${msg.file}" target="_blank">📎 File đính kèm</a>`;
+    // Nếu có ảnh, hiển thị ảnh
+    if (msg.image) {
+        div.innerHTML += `<br><img src="${msg.image}" class="chat-image" alt="Image">`;
     }
 
     // Hiển thị thời gian
@@ -105,7 +104,7 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
     chatBox.scrollTop = chatBox.scrollHeight;
 });
 
-// Cho phép bấm Enter để gửi tin nhắn
+// Cho phép bấm Enter để gửi tin nhắn nhanh
 document.getElementById("message-input").addEventListener("keypress", function (event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -122,4 +121,4 @@ if (!username) {
 
 // Đưa sendMessage vào global để dùng onclick
 window.sendMessage = sendMessage;
-window.removeFile = removeFile;
+window.removeImage = removeImage;
