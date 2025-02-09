@@ -37,3 +37,11 @@ button {
     cursor: pointer;
 }
 
+.my-message {
+    background-color: #d1e7dd;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    text-align: right; /* Căn phải */
+}
+
